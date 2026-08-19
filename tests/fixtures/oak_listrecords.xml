@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?><OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"><responseDate>2026-08-19T18:03:46Z</responseDate><request verb="ListRecords" metadataPrefix="oai_dc">http://oak.go.kr/OAIHandler</request><ListRecords>
+<record><header><identifier>oai:oak.go.kr:16974253</identifier><datestamp>2020-05-27</datestamp></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title_h>부산·진해 경제자유구역 개발계획.제2권 :부문별 계획</dc:title_h>
+<dc:author>김원배</dc:author>
+<dc:publish_date>2004</dc:publish_date>
+<dc:publisher>부산광역시</dc:publisher>
+<dc:keyword>Report</dc:keyword>
+<dc:location_org>국토연구원</dc:location_org>
+<dc:language>bnk</dc:language>
+<dc:deep_link>http://oak.go.kr/detail/detail.do?metadataSeq=16974253</dc:deep_link>
+<dc:contents_url>http://repo.krihs.re.kr/handle/2015.oak/39899</dc:contents_url>
+</oai_dc:dc>
+</metadata></record>
+<record><header><identifier>oai:oak.go.kr:16974254</identifier><datestamp>2020-05-27</datestamp></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title_h>우리나라 토지이용규제의 문제점 및 개선과제</dc:title_h>
+<dc:author>김상조</dc:author>
+<dc:author> 김성수</dc:author>
+<dc:author> 김동근</dc:author>
+<dc:publish_date>2013-12-29</dc:publish_date>
+<dc:publisher>國土硏究院</dc:publisher>
+<dc:issn>1229-8638</dc:issn>
+<dc:keyword>Book</dc:keyword>
+<dc:location_org>국토연구원</dc:location_org>
+<dc:deep_link>http://oak.go.kr/detail/detail.do?metadataSeq=16974254</dc:deep_link>
+<dc:contents_url>http://repo.krihs.re.kr/handle/2015.oak/29747</dc:contents_url>
+</oai_dc:dc>
+</metadata></record>
+<record><header><identifier>oai:oak.go.kr:38227874</identifier><datestamp>2024-01-11</datestamp></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title_h>동곡서첩</dc:title_h>
+<dc:author>동곡</dc:author>
+<dc:publisher>[刊寫地未詳] : [刊寫年未詳] [刊寫者未詳]</dc:publisher>
+<dc:abstract_e>筆寫本.</dc:abstract_e>
+<dc:keyword>OldBook</dc:keyword>
+<dc:location_org>국민대학교 성곡도서관</dc:location_org>
+<dc:deep_link>http://oak.go.kr/detail/detail.do?metadataSeq=38227874</dc:deep_link>
+<dc:contents_url>http://oak.kookmin.ac.kr/handle/2018.oak/65206</dc:contents_url>
+</oai_dc:dc>
+</metadata></record>
+</ListRecords></OAI-PMH>

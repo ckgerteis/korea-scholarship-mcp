@@ -1,0 +1,28 @@
+{
+  "title": "korea-scholarship-mcp: An MCP server for the Korea Citation Index and Open Access Korea",
+  "description": "A FastMCP stdio server that exposes KCI (Korea Citation Index, National Research Foundation of Korea) and OAK (Open Access Korea, National Library of Korea) as eight tools for AI clients: article search, full-record and reference lookup, journal citation indices, and keyless OAI-PMH harvesting of both repositories. Four of the eight tools require no credentials. Responses use a typed envelope that reports query script, matching mode, result-set breadth, harvest truncation and source-specific field asymmetries rather than smoothing them. Korean counterpart to cinii-mcp and jstage-mcp. Works with any MCP-compatible client.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "version": "0.4.0",
+  "creators": [
+    {
+      "name": "Gerteis, Christopher",
+      "affiliation": "SOAS University of London",
+      "orcid": "0000-0003-4977-6152"
+    }
+  ],
+  "keywords": [
+    "Model Context Protocol",
+    "MCP",
+    "KCI",
+    "Korea Citation Index",
+    "Open Access Korea",
+    "OAI-PMH",
+    "Korean studies",
+    "East Asian studies",
+    "digital humanities",
+    "bibliographic search",
+    "scholarly metadata"
+  ]
+}

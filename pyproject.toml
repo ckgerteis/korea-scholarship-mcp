@@ -1,0 +1,64 @@
+[project]
+name = "korea-scholarship-mcp"
+version = "0.4.0"
+description = "MCP stdio server for KCI and OAK (Korean scholarship)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Christopher Gerteis", email = "christopher.gerteis@gmail.com" },
+]
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "kci",
+    "oak",
+    "korea-citation-index",
+    "korean-studies",
+    "east-asian-studies",
+    "digital-humanities",
+    "bibliographic-search",
+    "oai-pmh",
+]
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "defusedxml>=0.7.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0", "build>=1.2.0"]
+
+[project.scripts]
+korea-scholarship-mcp = "korea_scholarship_mcp:main"
+korea-scholarship-mcp-ledger = "korea_scholarship_mcp.ledger:_cli"
+
+[project.urls]
+Homepage = "https://www.christophergerteis.net"
+Repository = "https://github.com/ckgerteis/korea-scholarship-mcp"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# src layout: the wheel contains the package and nothing else.
+#
+# The earlier flat configuration — packages = ["."] with an `include` list —
+# does not constrain the wheel: `include` filters within the selected root
+# rather than replacing it, so the built wheel shipped tests/, pyproject.toml,
+# README.md and .gitignore into the site-packages root, and installed `server`
+# and `mediation` as top-level modules that collide with every sibling server
+# built the same way.
+[tool.hatch.build.targets.wheel]
+packages = ["src/korea_scholarship_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+    "/CITATION.cff",
+    "/.env.example",
+]
