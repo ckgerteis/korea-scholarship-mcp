@@ -508,7 +508,7 @@ async def kci_search(
     }
     root, err = await _kci_rest("articleSearch", params)
     if err:
-        return M.dumps(
+        return M.emit(
             M.build_envelope(
                 server="korea_scholarship_mcp",
                 operation="kci_search",
@@ -565,7 +565,7 @@ async def kci_search(
                 "Page through with `page` rather than trusting one call.",
             )
         )
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_search",
@@ -594,7 +594,7 @@ async def kci_article(article_id: str) -> str:
     params = {"id": article_id}
     root, err = await _kci_rest("articleDetail", params)
     if err:
-        return M.dumps(
+        return M.emit(
             M.build_envelope(
                 server="korea_scholarship_mcp",
                 operation="kci_article",
@@ -611,7 +611,7 @@ async def kci_article(article_id: str) -> str:
             )
         )
     items, total = _kci_items(root)
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_article",
@@ -651,7 +651,7 @@ async def kci_references(article_id: str) -> str:
                 "Absence of references is not evidence that none were cited.",
             )
         ]
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_references",
@@ -704,7 +704,7 @@ async def kci_journal_metrics(
                 "Not comparable with WoS or Scopus figures, and not a measure of quality.",
             )
         ]
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_journal_metrics",
@@ -1182,7 +1182,7 @@ async def kci_harvest(
             )
         )
     diags.extend(_script_diags(contains, "KCI"))
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_harvest",
@@ -1292,7 +1292,7 @@ async def oak_harvest(
         )
     )
     diags.extend(_script_diags(contains, "OAK"))
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="oak_harvest",
@@ -1331,7 +1331,7 @@ async def oak_record(identifier: str) -> str:
             else:
                 items = [_oak_item(r) for r in root.iter()
                          if _ln(r) == "record" and not _is_deleted(r)]
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="oak_record",

@@ -48,7 +48,7 @@ Every tool returns the envelope built by `mediation.py` and defined in [`respons
 
 - `detect_script()` recognises Hangul and CJK Extensions B–G plus the Compatibility Supplement.
 - `title` and `source` carry a `ko` slot alongside `ja`.
-- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. Note what is and is not true of *this* server: the module carries `emit()`, and the tools still serialise with `dumps()`, so Korean queries do not yet reach the deposit. The fork is reconciled in the module and not in the caller.
+- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. Every tool that returns an envelope now calls `emit()`, so Korean queries enter the same hash-chained deposit as the Japanese ones once `MCP_RECEIPT_LOG` is set. `korea_sources_status` is the one exception and still calls `dumps()`: it reports on the sources rather than searching them, and a status report is not a query to be deposited.
 
 `title.romanized` stays `null` unless the source supplies a romanisation. Neither KCI nor OAK does, and this server will not generate one: Revised Romanisation of a Korean name requires knowing the name, and a machine-transliterated string presented as bibliographic data is a fabrication with the shape of a fact.
 
