@@ -42,13 +42,13 @@ Two further asymmetries are reported rather than smoothed over:
 
 ## The response envelope
 
-Every tool returns the envelope documented in `mediation.py` (schema 2.1.0) — typed `query`/`script`, `matching_mode`, graduated `breadth`, per-item `matched_in`, typed `diagnostics`, a loggable `receipt`, and `attribution`. Nothing is summarised or scored for you.
+Every tool returns the envelope built by `mediation.py` and defined in [`response-schema.json`](response-schema.json), schema version 2.2.0 — typed `query`/`script`, `matching_mode`, graduated `breadth`, per-item `matched_in`, typed `diagnostics`, a loggable `receipt`, and `attribution`. Nothing is summarised or scored for you. `kci_search` also carries `searched_for`, the term actually sent with its detected script; the fetches and the harvests omit it, having chosen no term.
 
 `mediation.py` 2.2.0 is the reconciliation of a fork. Until 19 Aug 2026 two different files both called themselves 2.1.0: the Japanese copy had `emit()` — ledger persistence — but classified Hangul as `latin`; the Korean copy knew Hangul and the CJK extensions but had no `emit()`, so Korean queries never reached the deposit every Japanese query entered. 2.2.0 carries both, and is vendored byte-identical across cinii-mcp, jstage-mcp, ndl-mcp and this server. Everything in it is additive, so the Japanese servers adopt it without migration.
 
 - `detect_script()` recognises Hangul and CJK Extensions B–G plus the Compatibility Supplement.
 - `title` and `source` carry a `ko` slot alongside `ja`.
-- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op.
+- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. Note what is and is not true of *this* server: the module carries `emit()`, and the tools still serialise with `dumps()`, so Korean queries do not yet reach the deposit. The fork is reconciled in the module and not in the caller.
 
 `title.romanized` stays `null` unless the source supplies a romanisation. Neither KCI nor OAK does, and this server will not generate one: Revised Romanisation of a Korean name requires knowing the name, and a machine-transliterated string presented as bibliographic data is a fabrication with the shape of a fact.
 
