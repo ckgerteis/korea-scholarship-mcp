@@ -42,9 +42,9 @@ Two further asymmetries are reported rather than smoothed over:
 
 ## The response envelope
 
-Every tool returns the envelope built by `mediation.py` and defined in [`response-schema.json`](response-schema.json), schema version 2.2.0 — typed `query`/`script`, `matching_mode`, graduated `breadth`, per-item `matched_in`, typed `diagnostics`, a loggable `receipt`, and `attribution`. Nothing is summarised or scored for you. `kci_search` also carries `searched_for`, the term actually sent with its detected script; the fetches and the harvests omit it, having chosen no term.
+Every tool returns the envelope built by `mediation.py` and defined in [`response-schema.json`](response-schema.json), schema version 2.3.0 — typed `query`/`script`, `matching_mode`, graduated `breadth`, per-item `matched_in`, typed `diagnostics`, a loggable `receipt`, and `attribution`. Nothing is summarised or scored for you. `kci_search` also carries `searched_for`, the term actually sent with its detected script; the fetches and the harvests omit it, having chosen no term.
 
-`mediation.py` 2.2.0 is the reconciliation of a fork. Until 19 Aug 2026 two different files both called themselves 2.1.0: the Japanese copy had `emit()` — ledger persistence — but classified Hangul as `latin`; the Korean copy knew Hangul and the CJK extensions but had no `emit()`, so Korean queries never reached the deposit every Japanese query entered. 2.2.0 carries both, and is vendored byte-identical across cinii-mcp, jstage-mcp, ndl-mcp and this server. Everything in it is additive, so the Japanese servers adopt it without migration.
+`mediation.py` 2.3.0 adds deposit reporting to 2.2.0, which was itself the reconciliation of a fork. Until 19 Aug 2026 two different files both called themselves 2.1.0: the Japanese copy had `emit()` — ledger persistence — but classified Hangul as `latin`; the Korean copy knew Hangul and the CJK extensions but had no `emit()`, so Korean queries never reached the deposit every Japanese query entered. 2.2.0 carries both, and is vendored byte-identical across cinii-mcp, jstage-mcp, ndl-mcp and this server. Everything in it is additive, so the Japanese servers adopt it without migration.
 
 - `detect_script()` recognises Hangul and CJK Extensions B–G plus the Compatibility Supplement.
 - `title` and `source` carry a `ko` slot alongside `ja`.
@@ -54,7 +54,7 @@ Every tool returns the envelope built by `mediation.py` and defined in [`respons
 
 ### Diagnostic codes
 
-`OK` · `NO_KEY` · `KCI_REJECTED` · `KCI_KEYWORDS_ABSENT` · `ZERO_CONJUNCTION` · `TRUNCATED` · `PAGE_PAST_END` · `REFERENCE_DEPOSIT_UNEVEN` · `BIBLIOMETRIC_SCOPE` · `SCRIPT_LATIN_QUERY` · `INGEST_DATE_NOT_PUBLICATION_DATE` · `CLIENT_SIDE_FILTER` · `OAI_MORE_AVAILABLE` · `OAI_INCOMPLETE` · `OAI_STALLED` · `OAI_PAGE_CAP` · `OAI_NO_RECORDS` · `OAI_ERROR` · `OAI_WINDOW_TRUNCATED` · `OAK_NONSTANDARD_DC` · `WINDOW_DOMINATED_BY_ONE_REPOSITORY` · `REDIRECTED` · `TRANSPORT_ERROR` · `API_ERROR` · `PARSE_ERROR`
+`OK` · `NO_KEY` · `KCI_REJECTED` · `KCI_KEYWORDS_ABSENT` · `ZERO_CONJUNCTION` · `TRUNCATED` · `PAGE_PAST_END` · `REFERENCE_DEPOSIT_UNEVEN` · `BIBLIOMETRIC_SCOPE` · `SCRIPT_LATIN_QUERY` · `INGEST_DATE_NOT_PUBLICATION_DATE` · `CLIENT_SIDE_FILTER` · `OAI_MORE_AVAILABLE` · `OAI_INCOMPLETE` · `OAI_STALLED` · `OAI_PAGE_CAP` · `OAI_NO_RECORDS` · `OAI_ERROR` · `OAI_WINDOW_TRUNCATED` · `OAK_NONSTANDARD_DC` · `WINDOW_DOMINATED_BY_ONE_REPOSITORY` · `REDIRECTED` · `TRANSPORT_ERROR` · `API_ERROR` · `PARSE_ERROR` · `RECEIPT_NOT_DEPOSITED` · `RECEIPT_WRITE_FAILED`
 
 ## Prerequisites
 

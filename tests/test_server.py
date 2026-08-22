@@ -9,6 +9,7 @@ suite stays deterministic; run them when a service contract may have shifted.
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -237,16 +238,19 @@ def test_envelope_shape_and_breadth():
     )
     assert env["query"]["script"] == "hangul"
     assert env["result"]["breadth"] == "broad"
-    assert env["schema_version"] == "2.2.0"
+    assert env["schema_version"] == "2.3.0"
     assert env["receipt"]["result_ids"] == ["ART1"]
     assert env["diagnostics"][0]["code"] == "OK"
 
 
-def test_mediation_is_the_reconciled_2_2_0():
+def test_mediation_is_the_reconciled_union():
     """Two files both called 2.1.0 — one with emit(), one with Hangul — is what
-    2.2.0 exists to end. Both capabilities must be present in the same file."""
-    assert M.SCHEMA_VERSION == "2.2.0"
+    2.2.0 existed to end. Both capabilities must be present in the same file,
+    whatever the version has since moved to. 2.3.0 adds deposit reporting on
+    top; the union guarantee is what this test holds."""
+    assert M.SCHEMA_VERSION == "2.3.0"
     assert hasattr(M, "emit") and hasattr(M, "ledger_available")
+    assert hasattr(M, "deposit_enabled")
     assert M.detect_script("여성") == "hangul"
     assert M.detect_script("\U00020000") == "han"
     assert M.ledger_available(), "ledger.py must be vendored beside mediation.py"
@@ -503,3 +507,49 @@ def test_live_resumption_receipt_does_not_invent_a_window():
     assert "from" not in out["query"]["params"]
     assert out["query"]["params"]["resumptionToken"] == token
     assert not any("1900" in (d["message"] or "") for d in out["diagnostics"])
+
+
+# ------------------------------------------------- deposit self-reporting ----
+
+
+def _envelope():
+    return M.build_envelope(
+        server="korea_scholarship", operation="kci_search",
+        input_terms="식민지", normalized="식민지", params={"title": "식민지"},
+        matching_mode="metadata_conjunction", total=1, start=1, items=[],
+        diagnostics=[M.diag("info", "OK", "1 record.", None)], attribution="KCI",
+    )
+
+
+def _codes(raw):
+    return [d["code"] for d in json.loads(raw)["diagnostics"]]
+
+
+def test_undeposited_response_says_so(monkeypatch):
+    """The failure this guards is not a crash. Between 19 and 22 Aug 2026
+    ndl-mcp called emit() at every exit with MCP_RECEIPT_LOG absent and
+    deposited nothing, behind envelopes that looked entirely healthy. A
+    response that is not being recorded has to say it is not being recorded."""
+    monkeypatch.delenv("MCP_RECEIPT_LOG", raising=False)
+    assert M.deposit_enabled() is False
+    assert "RECEIPT_NOT_DEPOSITED" in _codes(M.emit(_envelope()))
+
+
+def test_deposited_response_is_not_marked(monkeypatch, tmp_path):
+    log = tmp_path / "receipts.jsonl"
+    monkeypatch.setenv("MCP_RECEIPT_LOG", str(log))
+    assert M.deposit_enabled() is True
+    codes = _codes(M.emit(_envelope()))
+    assert "RECEIPT_NOT_DEPOSITED" not in codes
+    assert "RECEIPT_WRITE_FAILED" not in codes
+    lines = [l for l in log.read_text(encoding="utf-8").splitlines() if l.strip()]
+    assert len(lines) == 1
+    assert json.loads(lines[0])["script"] == "hangul"
+
+
+def test_failed_write_is_distinguished_from_an_unset_variable(monkeypatch):
+    """One is a choice and the other is a fault; they must not share a code."""
+    monkeypatch.setenv("MCP_RECEIPT_LOG", "/proc/self/no/such/dir/receipts.jsonl")
+    codes = _codes(M.emit(_envelope()))
+    assert "RECEIPT_WRITE_FAILED" in codes
+    assert "RECEIPT_NOT_DEPOSITED" not in codes
