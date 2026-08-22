@@ -4,6 +4,14 @@ A FastMCP stdio server exposing two Korean bibliographic services — the **Kore
 
 It is the Korean counterpart to [`cinii-mcp`](https://github.com/ckgerteis/cinii-mcp) and [`jstage-mcp`](https://github.com/ckgerteis/jstage-mcp) and returns the same response envelope, so the three can be read side by side in trilateral work.
 
+## What this is for
+
+Korean-language scholarship, through the Korea Citation Index and Open Access Korea.
+
+Search KCI for articles in Korean-registered journals; pull a full record with its abstract, author keywords, ISSN and UCI; follow the works a given article cites; read journal-level citation metrics. OAK reaches the institutional repositories — theses, monographs, research reports, 고서 holdings and open-access articles contributed by member institutions. Half the tools need no credentials at all, so Korean material is reachable the moment the server is installed.
+
+Records come back in the same response envelope the Japanese servers use, which is what makes genuinely trilateral work practical: Japanese, Korean and Anglophone scholarship on one question, read side by side in one format.
+
 ## Tools
 
 | Tool | Source | Key required | Purpose |
@@ -42,19 +50,19 @@ Two further asymmetries are reported rather than smoothed over:
 
 ## The response envelope
 
-Every tool returns the envelope built by `mediation.py` and defined in [`response-schema.json`](response-schema.json), schema version 2.2.0 — typed `query`/`script`, `matching_mode`, graduated `breadth`, per-item `matched_in`, typed `diagnostics`, a loggable `receipt`, and `attribution`. Nothing is summarised or scored for you. `kci_search` also carries `searched_for`, the term actually sent with its detected script; the fetches and the harvests omit it, having chosen no term.
+Every tool returns the envelope built by `mediation.py` and defined in [`response-schema.json`](response-schema.json), schema version 2.3.0 — typed `query`/`script`, `matching_mode`, graduated `breadth`, per-item `matched_in`, typed `diagnostics`, a loggable `receipt`, and `attribution`. Nothing is summarised or scored for you. `kci_search` also carries `searched_for`, the term actually sent with its detected script; the fetches and the harvests omit it, having chosen no term.
 
-`mediation.py` 2.2.0 is the reconciliation of a fork. Until 19 Aug 2026 two different files both called themselves 2.1.0: the Japanese copy had `emit()` — ledger persistence — but classified Hangul as `latin`; the Korean copy knew Hangul and the CJK extensions but had no `emit()`, so Korean queries never reached the deposit every Japanese query entered. 2.2.0 carries both, and is vendored byte-identical across cinii-mcp, jstage-mcp, ndl-mcp and this server. Everything in it is additive, so the Japanese servers adopt it without migration.
+`mediation.py` 2.3.0 adds deposit reporting to 2.2.0, which was itself the reconciliation of a fork. Until 19 Aug 2026 two different files both called themselves 2.1.0: the Japanese copy had `emit()` — ledger persistence — but classified Hangul as `latin`; the Korean copy knew Hangul and the CJK extensions but had no `emit()`, so Korean queries never reached the deposit every Japanese query entered. 2.2.0 carries both, and is vendored byte-identical across cinii-mcp, jstage-mcp, ndl-mcp and this server. Everything in it is additive, so the Japanese servers adopt it without migration.
 
 - `detect_script()` recognises Hangul and CJK Extensions B–G plus the Compatibility Supplement.
 - `title` and `source` carry a `ko` slot alongside `ja`.
-- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. Note what is and is not true of *this* server: the module carries `emit()`, and the tools still serialise with `dumps()`, so Korean queries do not yet reach the deposit. The fork is reconciled in the module and not in the caller.
+- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. As of v0.4.1 every query-answering tool in this server returns through `emit()`, rejections included — a query issued and refused was still issued — so Korean queries now enter the same deposit every Japanese query enters. `korea_sources_status` is the one exception: it chooses no term and answers no corpus, so it serialises with `dumps()` and instead *reports* the deposit state. Note the second gate: the ledger writes nothing unless `MCP_RECEIPT_LOG` is set, and `korea_sources_status` now says which of the two gates is closed when nothing is being written.
 
 `title.romanized` stays `null` unless the source supplies a romanisation. Neither KCI nor OAK does, and this server will not generate one: Revised Romanisation of a Korean name requires knowing the name, and a machine-transliterated string presented as bibliographic data is a fabrication with the shape of a fact.
 
 ### Diagnostic codes
 
-`OK` · `NO_KEY` · `KCI_REJECTED` · `KCI_KEYWORDS_ABSENT` · `ZERO_CONJUNCTION` · `TRUNCATED` · `PAGE_PAST_END` · `REFERENCE_DEPOSIT_UNEVEN` · `BIBLIOMETRIC_SCOPE` · `SCRIPT_LATIN_QUERY` · `INGEST_DATE_NOT_PUBLICATION_DATE` · `CLIENT_SIDE_FILTER` · `OAI_MORE_AVAILABLE` · `OAI_INCOMPLETE` · `OAI_STALLED` · `OAI_PAGE_CAP` · `OAI_NO_RECORDS` · `OAI_ERROR` · `OAI_WINDOW_TRUNCATED` · `OAK_NONSTANDARD_DC` · `WINDOW_DOMINATED_BY_ONE_REPOSITORY` · `REDIRECTED` · `TRANSPORT_ERROR` · `API_ERROR` · `PARSE_ERROR`
+`OK` · `NO_KEY` · `KCI_REJECTED` · `KCI_KEYWORDS_ABSENT` · `ZERO_CONJUNCTION` · `TRUNCATED` · `PAGE_PAST_END` · `REFERENCE_DEPOSIT_UNEVEN` · `BIBLIOMETRIC_SCOPE` · `SCRIPT_LATIN_QUERY` · `INGEST_DATE_NOT_PUBLICATION_DATE` · `CLIENT_SIDE_FILTER` · `OAI_MORE_AVAILABLE` · `OAI_INCOMPLETE` · `OAI_STALLED` · `OAI_PAGE_CAP` · `OAI_NO_RECORDS` · `OAI_ERROR` · `OAI_WINDOW_TRUNCATED` · `OAK_NONSTANDARD_DC` · `WINDOW_DOMINATED_BY_ONE_REPOSITORY` · `REDIRECTED` · `TRANSPORT_ERROR` · `API_ERROR` · `PARSE_ERROR` · `RECEIPT_NOT_DEPOSITED` · `RECEIPT_WRITE_FAILED`
 
 ## Prerequisites
 

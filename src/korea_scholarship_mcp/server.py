@@ -1,12 +1,12 @@
 """
-Korea Scholarship MCP Server (v0.1.0)
+Korea Scholarship MCP Server (v0.4.1)
 =====================================
 An MCP server for Korean-language scholarship: the Korea Citation Index (KCI,
 한국학술지인용색인, National Research Foundation of Korea) and Open Access Korea
 (OAK, 오픈액세스코리아, National Library of Korea).
 
 It is the Korean counterpart to cinii-mcp and jstage-mcp and emits the same
-response envelope (mediation.py, schema 2.1.0): typed query/script,
+response envelope (mediation.py, schema 2.2.0): typed query/script,
 matching_mode, graduated breadth, per-item matched_in, typed diagnostics, a
 loggable receipt, and attribution. No tool returns a server-composed summary.
 
@@ -51,7 +51,7 @@ except ModuleNotFoundError:  # mcp SDK 2.x removed mcp.server.fastmcp
 
 from . import mediation as M
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 # ==============================================================================
 # Configuration
@@ -508,7 +508,7 @@ async def kci_search(
     }
     root, err = await _kci_rest("articleSearch", params)
     if err:
-        return M.dumps(
+        return M.emit(
             M.build_envelope(
                 server="korea_scholarship_mcp",
                 operation="kci_search",
@@ -565,7 +565,7 @@ async def kci_search(
                 "Page through with `page` rather than trusting one call.",
             )
         )
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_search",
@@ -594,7 +594,7 @@ async def kci_article(article_id: str) -> str:
     params = {"id": article_id}
     root, err = await _kci_rest("articleDetail", params)
     if err:
-        return M.dumps(
+        return M.emit(
             M.build_envelope(
                 server="korea_scholarship_mcp",
                 operation="kci_article",
@@ -611,7 +611,7 @@ async def kci_article(article_id: str) -> str:
             )
         )
     items, total = _kci_items(root)
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_article",
@@ -651,7 +651,7 @@ async def kci_references(article_id: str) -> str:
                 "Absence of references is not evidence that none were cited.",
             )
         ]
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_references",
@@ -704,7 +704,7 @@ async def kci_journal_metrics(
                 "Not comparable with WoS or Scopus figures, and not a measure of quality.",
             )
         ]
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_journal_metrics",
@@ -1182,7 +1182,7 @@ async def kci_harvest(
             )
         )
     diags.extend(_script_diags(contains, "KCI"))
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="kci_harvest",
@@ -1292,7 +1292,7 @@ async def oak_harvest(
         )
     )
     diags.extend(_script_diags(contains, "OAK"))
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="oak_harvest",
@@ -1331,7 +1331,7 @@ async def oak_record(identifier: str) -> str:
             else:
                 items = [_oak_item(r) for r in root.iter()
                          if _ln(r) == "record" and not _is_deleted(r)]
-    return M.dumps(
+    return M.emit(
         M.build_envelope(
             server="korea_scholarship_mcp",
             operation="oak_record",
@@ -1405,6 +1405,51 @@ async def korea_sources_status() -> str:
         },
     ]
 
+    # Whether the deposit is actually happening, reported rather than assumed.
+    # There are two independent gates and only one of them is about this code:
+    # ledger_available() answers whether ledger.py imported at all, and
+    # ledger.enabled() answers whether MCP_RECEIPT_LOG is set. If either is
+    # false, mediation.emit() degrades to dumps() and every query goes
+    # unrecorded with no error to notice. A server that reports what is
+    # configured must report this, or the silence is its own.
+    ledger_module = M.ledger_available()
+    receipts_on = False
+    receipt_log = receipt_session = None
+    try:
+        from . import ledger as _ledger
+        receipts_on = bool(_ledger.enabled())
+        receipt_log = os.environ.get("MCP_RECEIPT_LOG") or None
+        receipt_session = os.environ.get("MCP_RECEIPT_SESSION") or None
+    except Exception:  # pragma: no cover - ledger.py absent is a valid config
+        ledger_module = False
+
+    if ledger_module and receipts_on:
+        deposit_note = (
+            "Depositing. Every query envelope is written to the append-only, "
+            "hash-chained log before the response is returned."
+        )
+    elif not ledger_module:
+        deposit_note = (
+            "NOT depositing: ledger.py did not import, so mediation.emit() "
+            "degrades to dumps(). Searches run normally and no receipt survives them."
+        )
+    else:
+        deposit_note = (
+            "NOT depositing: MCP_RECEIPT_LOG is unset, so every deposit call "
+            "returns without writing. Searches run normally and no receipt "
+            "survives them. Set MCP_RECEIPT_LOG before any session whose "
+            "queries are meant to be citable evidence — a receipt cannot be "
+            "reconstructed afterwards."
+        )
+
+    deposit = {
+        "ledger_module_importable": ledger_module,
+        "receipts_enabled": receipts_on,
+        "receipt_log": receipt_log,
+        "receipt_session": receipt_session,
+        "note": deposit_note,
+    }
+
     return M.dumps(
         {
             "server": "korea_scholarship_mcp",
@@ -1412,6 +1457,7 @@ async def korea_sources_status() -> str:
             "version": __version__,
             "operation": "korea_sources_status",
             "checks": checks,
+            "deposit": deposit,
             "not_covered": not_covered,
             "attribution": f"{KCI_ATTRIBUTION} {OAK_ATTRIBUTION}",
         }
