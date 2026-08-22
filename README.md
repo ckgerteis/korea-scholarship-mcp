@@ -4,6 +4,14 @@ A FastMCP stdio server exposing two Korean bibliographic services — the **Kore
 
 It is the Korean counterpart to [`cinii-mcp`](https://github.com/ckgerteis/cinii-mcp) and [`jstage-mcp`](https://github.com/ckgerteis/jstage-mcp) and returns the same response envelope, so the three can be read side by side in trilateral work.
 
+## What this is for
+
+Korean-language scholarship, through the Korea Citation Index and Open Access Korea.
+
+Search KCI for articles in Korean-registered journals; pull a full record with its abstract, author keywords, ISSN and UCI; follow the works a given article cites; read journal-level citation metrics. OAK reaches the institutional repositories — theses, monographs, research reports, 고서 holdings and open-access articles contributed by member institutions. Half the tools need no credentials at all, so Korean material is reachable the moment the server is installed.
+
+Records come back in the same response envelope the Japanese servers use, which is what makes genuinely trilateral work practical: Japanese, Korean and Anglophone scholarship on one question, read side by side in one format.
+
 ## Tools
 
 | Tool | Source | Key required | Purpose |
