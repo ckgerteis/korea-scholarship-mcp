@@ -51,7 +51,7 @@ except ModuleNotFoundError:  # mcp SDK 2.x removed mcp.server.fastmcp
 
 from . import mediation as M
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 # ==============================================================================
 # Configuration
@@ -119,7 +119,13 @@ def _silence_http_logging() -> None:
 
 _silence_http_logging()
 
-mcp = _MCPServer("korea_scholarship_mcp")
+# mcp 1.x's FastMCP takes no `version`; 2.x's MCPServer does. Passed where it is
+# accepted, because a server that answers `initialize` with an empty version
+# string cannot be cited by the disclosure that has to name the build it ran.
+try:
+    mcp = _MCPServer("korea_scholarship_mcp", version=__version__)
+except TypeError:  # mcp SDK 1.x
+    mcp = _MCPServer("korea_scholarship_mcp")
 
 
 # ==============================================================================

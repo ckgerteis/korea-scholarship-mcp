@@ -56,7 +56,7 @@ Every tool returns the envelope built by `mediation.py` and defined in [`respons
 
 - `detect_script()` recognises Hangul and CJK Extensions B–G plus the Compatibility Supplement.
 - `title` and `source` carry a `ko` slot alongside `ja`.
-- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. As of v0.4.1 every query-answering tool in this server returns through `emit()`, rejections included — a query issued and refused was still issued — so Korean queries now enter the same deposit every Japanese query enters. `korea_sources_status` is the one exception: it chooses no term and answers no corpus, so it serialises with `dumps()` and instead *reports* the deposit state. Note the second gate: the ledger writes nothing unless `MCP_RECEIPT_LOG` is set, and `korea_sources_status` now says which of the two gates is closed when nothing is being written.
+- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. As of v0.4.1 every query-answering tool in this server returns through `emit()`, rejections included — a query issued and refused was still issued — so Korean queries now enter the same deposit every Japanese query enters. `korea_sources_status` is the one exception: it chooses no term and answers no corpus, so it serialises with `dumps()` and instead *reports* the deposit state. Note the second gate: the ledger writes nothing unless `MCP_RECEIPT_DIR` (a receipts folder, one hash-chained file per server) or the legacy `MCP_RECEIPT_LOG` is set, and `korea_sources_status` now says which of the two gates is closed when nothing is being written.
 
 `title.romanized` stays `null` unless the source supplies a romanisation. Neither KCI nor OAK does, and this server will not generate one: Revised Romanisation of a Korean name requires knowing the name, and a machine-transliterated string presented as bibliographic data is a fabrication with the shape of a fact.
 
@@ -81,11 +81,11 @@ KCI is also mirrored as four datasets on [data.go.kr](https://www.data.go.kr/) u
 The package uses a `src/` layout and installs a console script. Any of these work:
 
 ```bash
-# from a release archive
-pip install korea-scholarship-mcp.zip
+# from a clone
+pip install .
 
-# from a built wheel
-pip install korea_scholarship_mcp-0.4.0-py3-none-any.whl
+# from a built wheel, whatever its version
+pip install dist/korea_scholarship_mcp-*.whl
 
 # from a clone, for development
 pip install -e ".[dev]"
@@ -95,6 +95,43 @@ uvx --from "git+https://github.com/ckgerteis/korea-scholarship-mcp" korea-schola
 ```
 
 Installing puts a `korea-scholarship-mcp` command on PATH. `python -m korea_scholarship_mcp` is equivalent.
+
+The package is namespaced, so it shares an environment with `cinii-mcp`,
+`jstage-mcp`, `ndl-mcp`, `openalex-mcp` and `semantic-scholar-mcp` without
+colliding. Verify the install with:
+
+```bash
+python -c "import korea_scholarship_mcp as k; print(k.__version__)"
+```
+
+Do not use `korea-scholarship-mcp --help` as the check: unknown arguments are
+ignored, the server starts, reads end-of-input and exits 0, so it reports
+success whatever the state of the code.
+
+### Installing more than this one
+
+Six independent packages. None imports another, none depends on another, and
+each installs and answers on its own — `pip install .` in this directory is a
+complete install of this server and nothing else.
+
+They do share three things: a response envelope, a query ledger, and — if you
+run more than one — a receipts folder. `install.ps1` is vendored byte-identical
+into all six and handles that. **It installs this server by default**, because
+cloning one repository is not a request for five more.
+
+```powershell
+.\install.ps1                        # this server
+.\install.ps1 -All                   # all six
+.\install.ps1 -Servers korea_scholarship,cinii# a chosen subset
+```
+
+Whatever subset you name is registered against one receipts folder, asked for
+once. The script prefers a sibling checkout to the network, carries across
+credentials already registered rather than asking again, leaves servers it was
+not asked about alone, and stops rather than guessing where the servers already
+registered disagree about the folder or the session slug. It also asserts that
+`ledger.py` and `mediation.py` are byte-identical across everything it
+installed, so two envelope versions cannot end up in one environment unnoticed.
 
 ## Configuration
 
