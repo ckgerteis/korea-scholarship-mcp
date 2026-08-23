@@ -56,7 +56,7 @@ Every tool returns the envelope built by `mediation.py` and defined in [`respons
 
 - `detect_script()` recognises Hangul and CJK Extensions B–G plus the Compatibility Supplement.
 - `title` and `source` carry a `ko` slot alongside `ja`.
-- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. As of v0.4.1 every query-answering tool in this server returns through `emit()`, rejections included — a query issued and refused was still issued — so Korean queries now enter the same deposit every Japanese query enters. `korea_sources_status` is the one exception: it chooses no term and answers no corpus, so it serialises with `dumps()` and instead *reports* the deposit state. Note the second gate: the ledger writes nothing unless `MCP_RECEIPT_LOG` is set, and `korea_sources_status` now says which of the two gates is closed when nothing is being written.
+- `emit()` deposits the envelope to the hash-chained query ledger; `ledger_available()` reports whether it can, rather than leaving a silent no-op. As of v0.4.1 every query-answering tool in this server returns through `emit()`, rejections included — a query issued and refused was still issued — so Korean queries now enter the same deposit every Japanese query enters. `korea_sources_status` is the one exception: it chooses no term and answers no corpus, so it serialises with `dumps()` and instead *reports* the deposit state. Note the second gate: the ledger writes nothing unless `MCP_RECEIPT_DIR` (a receipts folder, one hash-chained file per server) or the legacy `MCP_RECEIPT_LOG` is set, and `korea_sources_status` now says which of the two gates is closed when nothing is being written.
 
 `title.romanized` stays `null` unless the source supplies a romanisation. Neither KCI nor OAK does, and this server will not generate one: Revised Romanisation of a Korean name requires knowing the name, and a machine-transliterated string presented as bibliographic data is a fabrication with the shape of a fact.
 
@@ -107,6 +107,23 @@ python -c "import korea_scholarship_mcp as k; print(k.__version__)"
 Do not use `korea-scholarship-mcp --help` as the check: unknown arguments are
 ignored, the server starts, reads end-of-input and exits 0, so it reports
 success whatever the state of the code.
+
+### The whole family at once
+
+`install.ps1` — vendored byte-identical into all six repositories — installs any
+or all of `cinii`, `jstage`, `ndl`, `korea_scholarship`, `openalex` and
+`semantic_scholar` into one environment, asks once for a receipts folder, and
+registers them all against it.
+
+```powershell
+.\install.ps1                                   # all six
+.\install.ps1 -Servers korea_scholarship -ReceiptsDir "D:\research\receipts"
+```
+
+It reads a sibling checkout where one exists and fetches the rest from GitHub,
+carries across any credentials already registered rather than asking again, and
+stops rather than guessing if the servers already registered disagree about where
+the receipts go.
 
 ## Configuration
 

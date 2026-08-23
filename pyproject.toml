@@ -61,6 +61,7 @@ include = [
     "/LICENSE",
     "/CITATION.cff",
     "/CHANGELOG.md",
+    "/install.ps1",
     "/response-schema.json",
     "/.env.example",
 ]
