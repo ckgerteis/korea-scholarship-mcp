@@ -81,11 +81,11 @@ KCI is also mirrored as four datasets on [data.go.kr](https://www.data.go.kr/) u
 The package uses a `src/` layout and installs a console script. Any of these work:
 
 ```bash
-# from a release archive
-pip install korea-scholarship-mcp.zip
+# from a clone
+pip install .
 
-# from a built wheel
-pip install korea_scholarship_mcp-0.4.0-py3-none-any.whl
+# from a built wheel, whatever its version
+pip install dist/korea_scholarship_mcp-*.whl
 
 # from a clone, for development
 pip install -e ".[dev]"
@@ -95,6 +95,18 @@ uvx --from "git+https://github.com/ckgerteis/korea-scholarship-mcp" korea-schola
 ```
 
 Installing puts a `korea-scholarship-mcp` command on PATH. `python -m korea_scholarship_mcp` is equivalent.
+
+The package is namespaced, so it shares an environment with `cinii-mcp`,
+`jstage-mcp`, `ndl-mcp`, `openalex-mcp` and `semantic-scholar-mcp` without
+colliding. Verify the install with:
+
+```bash
+python -c "import korea_scholarship_mcp as k; print(k.__version__)"
+```
+
+Do not use `korea-scholarship-mcp --help` as the check: unknown arguments are
+ignored, the server starts, reads end-of-input and exits 0, so it reports
+success whatever the state of the code.
 
 ## Configuration
 
