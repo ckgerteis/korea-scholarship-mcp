@@ -547,9 +547,15 @@ def test_deposited_response_is_not_marked(monkeypatch, tmp_path):
     assert json.loads(lines[0])["script"] == "hangul"
 
 
-def test_failed_write_is_distinguished_from_an_unset_variable(monkeypatch):
-    """One is a choice and the other is a fault; they must not share a code."""
-    monkeypatch.setenv("MCP_RECEIPT_LOG", "/proc/self/no/such/dir/receipts.jsonl")
+def test_failed_write_is_distinguished_from_an_unset_variable(monkeypatch, tmp_path):
+    """One is a choice and the other is a fault; they must not share a code.
+
+    The unwritable destination is a path *under a regular file*, which no
+    filesystem will create — a Linux-only path such as /proc/... is happily
+    created as a folder on a Windows runner."""
+    blocker = tmp_path / "not-a-dir"
+    blocker.write_text("")
+    monkeypatch.setenv("MCP_RECEIPT_LOG", str(blocker / "sub" / "receipts.jsonl"))
     codes = _codes(M.emit(_envelope()))
     assert "RECEIPT_WRITE_FAILED" in codes
     assert "RECEIPT_NOT_DEPOSITED" not in codes
