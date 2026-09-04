@@ -199,6 +199,8 @@ RUN_LIVE_OAK=1 python -m pytest tests -q # adds OAK; needs a network that reache
 
 The live tests guard the claims this README rests on: that a KCI ingest window returns older publications, that KCI's identifiers are typed, that `max_records` is a cap rather than a hint, and that a resumption harvest does not record a date window it never sent. The OAK test is gated separately and **fails loudly** if OAK is unreachable rather than passing on an unexercised branch.
 
+`tests/smoke_stdio.py` starts the installed console script over stdio, performs the MCP handshake, and checks `tools/list` against the tool table above; `RUN_LIVE=1 … <tool> '<json params>'` adds one live call.
+
 ### Known limits
 
 The four KCI REST tools have never seen a live response — there is no API key. Their field mapping follows the published documentation and is unverified against the wire; the success/failure test is deliberately structural (records present means success) so that neither a chatty success message nor a terse rejection is misread. Treat REST output as provisional until a key exists.
