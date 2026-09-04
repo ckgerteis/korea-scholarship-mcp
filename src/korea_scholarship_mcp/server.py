@@ -1,5 +1,5 @@
 """
-Korea Scholarship MCP Server (v0.4.1)
+Korea Scholarship MCP Server (v0.5.0)
 =====================================
 An MCP server for Korean-language scholarship: the Korea Citation Index (KCI,
 한국학술지인용색인, National Research Foundation of Korea) and Open Access Korea
@@ -452,7 +452,7 @@ def _script_diags(query: str, corpus: str) -> list[dict]:
     if query and script == "latin":
         out.append(
             M.diag(
-                "warn",
+                "warning",
                 "SCRIPT_LATIN_QUERY",
                 f"The query sent to {corpus} is in Latin script.",
                 "Neither KCI nor OAK stores a romanisation. A Latin query reaches "
@@ -545,7 +545,7 @@ async def kci_search(
     if total == 0:
         diags.append(
             M.diag(
-                "warn",
+                "warning",
                 "ZERO_CONJUNCTION",
                 "No record satisfies all supplied fields simultaneously.",
                 "Drop the narrowest field and re-run; KCI conjoins every parameter.",
@@ -555,7 +555,7 @@ async def kci_search(
     if requested_start >= total > 0:
         diags.append(
             M.diag(
-                "warn",
+                "warning",
                 "PAGE_PAST_END",
                 f"page={page} starts at record {requested_start} of {total}.",
                 "Reduce `page`. This is not a truncation — there is nothing there.",
@@ -564,7 +564,7 @@ async def kci_search(
     elif len(items) < min(rows, max(total - requested_start, 0)):
         diags.append(
             M.diag(
-                "warn",
+                "warning",
                 "TRUNCATED",
                 f"{len(items)} returned where {min(rows, total - requested_start)} were "
                 f"expected; KCI sometimes ignores displayCount.",
@@ -704,7 +704,7 @@ async def kci_journal_metrics(
         items, total = _kci_items(root)
         diags = [
             M.diag(
-                "warn",
+                "warning",
                 "BIBLIOMETRIC_SCOPE",
                 "KCI indices are computed inside the Korean citation population only.",
                 "Not comparable with WoS or Scopus figures, and not a measure of quality.",
@@ -1122,7 +1122,7 @@ async def kci_harvest(
             break
         if empty_pages >= 2:
             diags.append(M.diag(
-                "warn", "OAI_STALLED",
+                "warning", "OAI_STALLED",
                 f"Two consecutive pages returned no records while still issuing a "
                 f"resumption token; stopped after {pages} page(s).",
                 "The cursor is not advancing. Narrow the window and retry."))
@@ -1130,7 +1130,7 @@ async def kci_harvest(
             break
         if pages >= MAX_PAGES or next_token in seen_tokens:
             diags.append(M.diag(
-                "warn", "OAI_PAGE_CAP",
+                "warning", "OAI_PAGE_CAP",
                 f"Stopped at the {MAX_PAGES}-page safety bound."
                 if pages >= MAX_PAGES else "The resumption token repeated itself.",
                 "Narrow the window rather than raising max_records."))
@@ -1170,7 +1170,7 @@ async def kci_harvest(
     if next_token and not failed:
         diags.append(
             M.diag(
-                "warn",
+                "warning",
                 "OAI_MORE_AVAILABLE",
                 f"Stopped at max_records={max_records}; the window has more.",
                 f"Continue with resumption_token='{next_token}'.",
@@ -1180,7 +1180,7 @@ async def kci_harvest(
         # Do not claim the cap was reached when the network gave out first.
         diags.append(
             M.diag(
-                "warn",
+                "warning",
                 "OAI_INCOMPLETE",
                 f"Harvest stopped early after {pages} page(s) because the request "
                 f"failed, not because the cap was reached.",
@@ -1255,7 +1255,7 @@ async def oak_harvest(
     if harvested >= 99:
         diags.append(
             M.diag(
-                "warn",
+                "warning",
                 "OAI_WINDOW_TRUNCATED",
                 f"{harvested} records returned and OAK sends no resumptionToken — the window is capped.",
                 "Narrow date_from/date_to (a few days at a time) and harvest in slices. "
@@ -1272,7 +1272,7 @@ async def oak_harvest(
         if harvested and n / harvested >= 0.5:
             diags.append(
                 M.diag(
-                    "warn",
+                    "warning",
                     "WINDOW_DOMINATED_BY_ONE_REPOSITORY",
                     f"{n} of {harvested} records in this window come from {top}.",
                     "This window records one repository's deposit event, not a cross-section of Korean OA output.",
@@ -1424,7 +1424,9 @@ async def korea_sources_status() -> str:
     try:
         from . import ledger as _ledger
         receipts_on = bool(_ledger.enabled())
-        receipt_log = os.environ.get("MCP_RECEIPT_LOG") or None
+        # Where this server's receipts actually go: the per-server file under
+        # MCP_RECEIPT_DIR when that is set, else the legacy single file.
+        receipt_log = _ledger.log_path_for("korea_scholarship_mcp")
         receipt_session = os.environ.get("MCP_RECEIPT_SESSION") or None
     except Exception:  # pragma: no cover - ledger.py absent is a valid config
         ledger_module = False
@@ -1441,9 +1443,10 @@ async def korea_sources_status() -> str:
         )
     else:
         deposit_note = (
-            "NOT depositing: MCP_RECEIPT_LOG is unset, so every deposit call "
-            "returns without writing. Searches run normally and no receipt "
-            "survives them. Set MCP_RECEIPT_LOG before any session whose "
+            "NOT depositing: neither MCP_RECEIPT_DIR nor the legacy "
+            "MCP_RECEIPT_LOG is set, so every deposit call returns without "
+            "writing. Searches run normally and no receipt survives them. Set "
+            "MCP_RECEIPT_DIR to a receipts folder before any session whose "
             "queries are meant to be citable evidence — a receipt cannot be "
             "reconstructed afterwards."
         )

@@ -14,6 +14,27 @@ it is citable by commit alone. Tagging waits on confirmation that this
 repository's Zenodo webhook is live: a release that mints nothing spends a
 version number and returns nothing citable for it.
 
+### Since 2026-09-04, still under 0.5.0 (unreleased)
+
+- **Diagnostic level `warn` corrected to `warning` at eleven call sites.**
+  `response-schema.json` closes `level` to `info`, `warning`, `error`, and
+  `mediation.diag()` does not validate it, so every `SCRIPT_LATIN_QUERY`,
+  `ZERO_CONJUNCTION`, `PAGE_PAST_END`, `TRUNCATED`, `BIBLIOMETRIC_SCOPE`,
+  `OAI_*` and `WINDOW_DOMINATED_BY_ONE_REPOSITORY` diagnostic this server
+  emitted failed schema validation. A consumer validating strictly would
+  have rejected the envelope; one reading the level would have missed the
+  warning. The codes and messages are unchanged.
+- **`korea_sources_status` now reports the receipts destination the ledger
+  actually uses.** It read `MCP_RECEIPT_LOG` only, so with `MCP_RECEIPT_DIR`
+  set (the preferred form since 0.5.0) it reported `receipts_enabled: true`
+  beside `receipt_log: null`, and its "not depositing" note named the wrong
+  variable. It now asks `ledger.log_path_for()` and names both variables.
+- `tests/smoke_stdio.py`: stdio handshake, `tools/list` checked against the
+  README table, optional live call. Vendored byte-identical across the six.
+- `response-schema.json`'s self-description said 2.2.0 and named four
+  servers; it now says 2.3.0 and names six. Text only; the schema is unchanged.
+- Module docstring banner corrected from v0.4.1 to v0.5.0.
+
 - **A receipts folder, and one chain per server.** `ledger.py` 1.1.0 adds
   `MCP_RECEIPT_DIR`: point it at a directory and each server writes its own
   `<server>.jsonl` inside it. `MCP_RECEIPT_LOG` still names a single file and is
