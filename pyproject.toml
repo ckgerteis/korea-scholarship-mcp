@@ -45,6 +45,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0.0", "build>=1.2.0"]
+test = ["pytest>=8", "jsonschema>=4"]
 
 [project.scripts]
 korea-scholarship-mcp = "korea_scholarship_mcp:main"
