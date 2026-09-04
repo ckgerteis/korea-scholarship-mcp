@@ -16,6 +16,17 @@ version number and returns nothing citable for it.
 
 ### Since 2026-09-04, still under 0.5.0 (unreleased)
 
+- **Released on GitHub as a package.** `.github/workflows/release.yml` runs
+  on a `vX.Y.Z` tag: tests on three OSes, wheel and sdist, one Claude
+  Desktop `.mcpb` bundle per platform, then a GitHub release carrying all of
+  them. Installable pinned to the tag with `pip install
+  "git+https://github.com/ckgerteis/korea-scholarship-mcp@vX.Y.Z"` or `uvx --from`
+  the same URL. The release is what fires the Zenodo webhook. Nothing is
+  published to a package index.
+- **Suite install.** `install.py` is the cross-platform port of `install.ps1`
+  (Windows, macOS, Linux; same behaviour, importable). The family is also
+  installable as one package, `bibliograph-mcp`, whose `bibliograph install`
+  registers all six with one receipts folder.
 - **Diagnostic level `warn` corrected to `warning` at eleven call sites.**
   `response-schema.json` closes `level` to `info`, `warning`, `error`, and
   `mediation.diag()` does not validate it, so every `SCRIPT_LATIN_QUERY`,
