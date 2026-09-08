@@ -14,7 +14,7 @@ authors:
     given-names: Christopher
     affiliation: SOAS University of London
     orcid: "https://orcid.org/0000-0003-4977-6152"
-version: 0.5.1
+version: 0.6.0
 date-released: "2026-09-08"
 license: MIT
 repository-code: "https://github.com/ckgerteis/korea-scholarship-mcp"
@@ -25,3 +25,7 @@ keywords:
   - digital humanities
   - bibliographic search
   - OAI-PMH
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22305407
+    description: Concept DOI; resolves to the latest version. Each release has its own version DOI on Zenodo.

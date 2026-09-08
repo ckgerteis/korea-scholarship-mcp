@@ -1,5 +1,5 @@
 """
-Korea Scholarship MCP Server (v0.5.1)
+Korea Scholarship MCP Server (v0.6.0)
 =====================================
 An MCP server for Korean-language scholarship: the Korea Citation Index (KCI,
 한국학술지인용색인, National Research Foundation of Korea) and Open Access Korea
@@ -51,7 +51,7 @@ except ModuleNotFoundError:  # mcp SDK 2.x removed mcp.server.fastmcp
 
 from . import mediation as M
 
-__version__ = "0.5.1"
+__version__ = "0.6.0"
 
 # ==============================================================================
 # Configuration
