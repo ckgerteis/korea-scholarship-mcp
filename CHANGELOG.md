@@ -7,12 +7,27 @@ the text and, where a version DOI exists, cited by it.
 Releases earlier than those below are on the repository's releases page; this
 file begins where the record is precise enough to be worth writing down.
 
+## 0.5.1 — 2026-09-08
+
+- **Re-release, because v0.5.0 published without artefacts.** The v0.5.0
+  workflow run built and uploaded the wheel, the sdist and three `.mcpb`
+  bundles, but the release it attached them to was deleted and recreated by
+  hand the same day (to fire the Zenodo webhook after the switch was turned
+  on), and the recreated release carried no files. Every asset URL for
+  v0.5.0 returns 404 while the README pointed users at it for a bundle. This
+  release is the same code with a version bump; its purpose is a release that
+  actually carries what the README promises. Nothing in the server changed.
+- Note that the `.mcpb` bundles attached here still share the family's known
+  runtime defect: they import only under CPython 3.12. That is fixed in the
+  next release. Install with `pip` from the tag if your Python is 3.10–3.13.
+- README: the suite pin was `bibliograph-mcp@v1.0.0`; the current suite
+  release is v1.0.1.
+
 ## 0.5.0 — 2026-08-23
 
-**Not released.** No tag was cut and no Zenodo record exists for this version, so
-it is citable by commit alone. Tagging waits on confirmation that this
-repository's Zenodo webhook is live: a release that mints nothing spends a
-version number and returns nothing citable for it.
+**Released 2026-09-04** as tag v0.5.0, archived by Zenodo as
+[10.5281/zenodo.22305408](https://doi.org/10.5281/zenodo.22305408). The GitHub
+release for this tag carries no wheel, sdist or bundle; see 0.5.1.
 
 ### Since 2026-09-04, still under 0.5.0 (unreleased)
 

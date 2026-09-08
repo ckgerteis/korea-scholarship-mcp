@@ -87,9 +87,9 @@ Download the `.mcpb` for your platform (Windows x64, Apple Silicon, Linux x64; I
 ### From GitHub, pinned to a release
 
 ```bash
-pip install "git+https://github.com/ckgerteis/korea-scholarship-mcp@v0.5.0"
+pip install "git+https://github.com/ckgerteis/korea-scholarship-mcp@v0.5.1"
 # or, without an environment of your own:
-uvx --from "git+https://github.com/ckgerteis/korea-scholarship-mcp@v0.5.0" korea-scholarship-mcp
+uvx --from "git+https://github.com/ckgerteis/korea-scholarship-mcp@v0.5.1" korea-scholarship-mcp
 ```
 
 installs the `korea-scholarship-mcp` console script and `korea-scholarship-mcp-ledger`. The tag is the thing to cite; `@main` gets whatever is current. Then register it in Claude Desktop (below), or let `install.py` do that.
@@ -97,7 +97,7 @@ installs the `korea-scholarship-mcp` console script and `korea-scholarship-mcp-l
 ### The whole family
 
 ```bash
-pip install "git+https://github.com/ckgerteis/bibliograph-mcp@v1.0.0" && bibliograph install
+pip install "git+https://github.com/ckgerteis/bibliograph-mcp@v1.0.1" && bibliograph install
 ```
 
 installs all six servers and registers them together — one receipts folder, credentials asked for once. See [bibliograph-mcp](https://github.com/ckgerteis/bibliograph-mcp). From a checkout of this repository, `python install.py` does the same for this server alone, `python install.py --all` for the six, on Windows, macOS and Linux; `install.ps1` remains for Windows.
