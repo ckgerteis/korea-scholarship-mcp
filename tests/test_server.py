@@ -559,3 +559,64 @@ def test_failed_write_is_distinguished_from_an_unset_variable(monkeypatch, tmp_p
     codes = _codes(M.emit(_envelope()))
     assert "RECEIPT_WRITE_FAILED" in codes
     assert "RECEIPT_NOT_DEPOSITED" not in codes
+
+
+# ----------------------------------------------------------------- dbpia ----
+
+
+def _dbpia(monkeypatch, **kw):
+    """Run dbpia_links with the network forbidden: the tool's whole claim is
+    that it never contacts DBpia, so any request is a failure."""
+    import asyncio
+
+    async def _no_network(*a, **k):
+        raise AssertionError("dbpia_links attempted a network request")
+
+    monkeypatch.setattr(S, "_get", _no_network)
+    monkeypatch.setattr(S.httpx, "AsyncClient", lambda *a, **k: (_ for _ in ()).throw(
+        AssertionError("dbpia_links opened an HTTP client")))
+    return json.loads(asyncio.run(S.dbpia_links(**kw)))
+
+
+def test_dbpia_links_encodes_hangul_and_sends_nothing(monkeypatch):
+    out = _dbpia(monkeypatch, query="강제동원 하시마")
+    urls = [s["url"] for s in out["suggestions"]]
+    assert urls == [
+        "https://www.dbpia.co.kr/search/topSearch?searchOption=all&query="
+        "%EA%B0%95%EC%A0%9C%EB%8F%99%EC%9B%90+%ED%95%98%EC%8B%9C%EB%A7%88"
+    ]
+    assert out["items"] == [] and out["result"]["total"] == 0
+    assert out["matching_mode"] == "link_only"
+    assert "LINK_ONLY" in [d["code"] for d in out["diagnostics"]]
+
+
+def test_dbpia_links_fields_add_title_only_link(monkeypatch):
+    out = _dbpia(monkeypatch, title="산업유산", author="김")
+    labels = [s["label"] for s in out["suggestions"]]
+    assert labels == ["DBpia search", "DBpia search, title only"]
+    assert out["suggestions"][0]["terms"] == "산업유산 김"
+
+
+def test_dbpia_links_node_id(monkeypatch):
+    out = _dbpia(monkeypatch, node_id="node01234567")
+    assert out["suggestions"] == [{
+        "label": "DBpia article page",
+        "node_id": "NODE01234567",
+        "url": "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE01234567",
+    }]
+    bad = _dbpia(monkeypatch, node_id="12345")
+    assert "suggestions" not in bad
+    assert "DBPIA_NODE_UNRECOGNISED" in [d["code"] for d in bad["diagnostics"]]
+
+
+def test_dbpia_links_empty_and_latin(monkeypatch):
+    empty = _dbpia(monkeypatch)
+    assert "NO_TERMS" in [d["code"] for d in empty["diagnostics"]]
+    latin = _dbpia(monkeypatch, query="forced mobilization")
+    assert "SCRIPT_LATIN_QUERY" in [d["code"] for d in latin["diagnostics"]]
+
+
+def test_dbpia_status_names_link_tool():
+    import inspect
+    src = inspect.getsource(S.korea_sources_status)
+    assert "dbpia_links" in src

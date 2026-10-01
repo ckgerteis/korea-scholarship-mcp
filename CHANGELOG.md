@@ -7,6 +7,19 @@ the text and, where a version DOI exists, cited by it.
 Releases earlier than those below are on the repository's releases page; this
 file begins where the record is precise enough to be worth writing down.
 
+## 0.7.0 — 2026-10-30
+
+**`dbpia_links`: DBpia addresses, with nothing sent to DBpia.**
+
+- A ninth tool composes DBpia search and article-page addresses from the
+  user's own terms or a nodeId and returns them under `suggestions`. It makes
+  no network request, so DBpia's terms (real-time, unaltered display; no
+  copying, storing or transmitting of results) are not engaged: the user opens
+  the link signed in and sees availability and price on DBpia's page.
+- Three diagnostic codes: `LINK_ONLY`, `NO_TERMS`, `DBPIA_NODE_UNRECOGNISED`.
+- `korea_sources_status` still lists DBpia as not searched, and now names the
+  link tool.
+
 ## 0.6.3 — 2026-10-12
 
 **Maintenance release from the stress test of 12 October 2026.** No tool was

@@ -58,9 +58,10 @@ receipts section below.
 | `kci_harvest` | KCI OAI-PMH | **no** | Harvest by ingest-date window, filter client-side, follow resumption tokens |
 | `oak_harvest` | OAK OAI-PMH | **no** | Harvest Korean institutional repositories by ingest-date window |
 | `oak_record` | OAK OAI-PMH | **no** | One OAK record by OAI identifier |
+| `dbpia_links` | — (no request sent) | **no** | DBpia search and article addresses for the user to open signed in; returns links, never DBpia data |
 | `korea_sources_status` | — | — | What is configured, what is reachable, and what this server does not cover |
 
-Four of the eight work with no credentials at all — everything OAI-PMH, plus status.
+Five of the nine work with no credentials at all — everything OAI-PMH, `dbpia_links`, plus status.
 
 ## What the sources actually are
 
@@ -97,7 +98,7 @@ Every tool returns the envelope built by `mediation.py` and defined in [`respons
 
 ### Diagnostic codes
 
-`OK` · `NO_KEY` · `KCI_REJECTED` · `KCI_KEYWORDS_ABSENT` · `ZERO_CONJUNCTION` · `TRUNCATED` · `PAGE_PAST_END` · `REFERENCE_DEPOSIT_UNEVEN` · `BIBLIOMETRIC_SCOPE` · `SCRIPT_LATIN_QUERY` · `INGEST_DATE_NOT_PUBLICATION_DATE` · `CLIENT_SIDE_FILTER` · `OAI_MORE_AVAILABLE` · `OAI_INCOMPLETE` · `OAI_STALLED` · `OAI_PAGE_CAP` · `OAI_NO_RECORDS` · `OAI_ERROR` · `OAI_WINDOW_TRUNCATED` · `OAK_NONSTANDARD_DC` · `WINDOW_DOMINATED_BY_ONE_REPOSITORY` · `REDIRECTED` · `TRANSPORT_ERROR` · `API_ERROR` · `PARSE_ERROR` · `RECEIPT_NOT_DEPOSITED` · `RECEIPT_WRITE_FAILED`
+`OK` · `NO_KEY` · `KCI_REJECTED` · `KCI_KEYWORDS_ABSENT` · `ZERO_CONJUNCTION` · `TRUNCATED` · `PAGE_PAST_END` · `REFERENCE_DEPOSIT_UNEVEN` · `BIBLIOMETRIC_SCOPE` · `SCRIPT_LATIN_QUERY` · `INGEST_DATE_NOT_PUBLICATION_DATE` · `CLIENT_SIDE_FILTER` · `OAI_MORE_AVAILABLE` · `OAI_INCOMPLETE` · `OAI_STALLED` · `OAI_PAGE_CAP` · `OAI_NO_RECORDS` · `OAI_ERROR` · `OAI_WINDOW_TRUNCATED` · `OAK_NONSTANDARD_DC` · `WINDOW_DOMINATED_BY_ONE_REPOSITORY` · `REDIRECTED` · `TRANSPORT_ERROR` · `API_ERROR` · `PARSE_ERROR` · `LINK_ONLY` · `NO_TERMS` · `DBPIA_NODE_UNRECOGNISED` · `RECEIPT_NOT_DEPOSITED` · `RECEIPT_WRITE_FAILED`
 
 ## Prerequisites
 
@@ -353,7 +354,7 @@ claude mcp add scienceon -- uvx --from "git+https://github.com/rubato103/science
 
 **RISS (KERIS)** — the search API exists at `https://www.riss.kr/openApi` and covers theses, domestic and foreign articles, monographs, research reports and serials, but keys are issued only to Korean non-profit institutions and universities, each application approved by KERIS staff; individuals cannot apply. Whether a non-Korean university qualifies is untested. If a key is ever obtained, RISS belongs in this server.
 
-**DBpia (Nurimedia)** — keys are open and generous (2,500 calls a day), but the terms of use restrict the service to non-commercial purposes *and* forbid copying, storing or transmitting search results, which are to be displayed in real time and unaltered. That is incompatible with harvesting into a reference manager, a corpus index, or a register. The constraint is the licence, not the API.
+**DBpia (Nurimedia)** — keys are open and generous (2,500 calls a day), but the terms of use restrict the service to non-commercial purposes *and* forbid copying, storing or transmitting search results, which are to be displayed in real time and unaltered. That is incompatible with harvesting into a reference manager, a corpus index, or a register. The constraint is the licence, not the API. `dbpia_links` stays inside it by not calling the API at all: it builds the address of DBpia's own search or article page and returns it, so the user sees DBpia's answer in a browser and nothing of it passes through this server or its receipts.
 
 `korea_sources_status` reports all three of these in situ, so the omission is visible from inside the tool rather than only in this file.
 

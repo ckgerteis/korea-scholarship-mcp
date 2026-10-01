@@ -1434,6 +1434,118 @@ async def oak_record(identifier: str) -> str:
 
 
 # ==============================================================================
+# DBpia — links only
+# ==============================================================================
+#
+# DBpia's Open API terms, as recorded in the README, confine use to
+# non-commercial purposes, require results to be displayed in real time and
+# unaltered, and forbid copying, storing or transmitting them. A tool that
+# called the API would pass results through the model and into the receipt
+# ledger, which is all three. So this tool sends nothing to DBpia: it composes
+# the address of DBpia's own search page and hands it to the user, who opens it
+# in a browser, signed in, and sees DBpia's answer there and nowhere else. The
+# receipt records only the user's own terms and the address built from them.
+
+DBPIA_SEARCH_URL = "https://www.dbpia.co.kr/search/topSearch"
+DBPIA_ARTICLE_URL = "https://www.dbpia.co.kr/journal/articleDetail"
+DBPIA_ATTRIBUTION = (
+    "Links to DBpia (Nurimedia). No request was sent to DBpia and no DBpia data "
+    "is held in this response."
+)
+DBPIA_COVERAGE_NOTE = (
+    "Link composition only. Whether DBpia holds the item, and at what price, is "
+    "visible only on DBpia's own page, opened by the user."
+)
+_DBPIA_NODE = re.compile(r"^NODE\d{6,}$", re.I)
+
+
+def _dbpia_search_url(terms: str) -> str:
+    from urllib.parse import urlencode
+    return f"{DBPIA_SEARCH_URL}?{urlencode({'searchOption': 'all', 'query': terms})}"
+
+
+@mcp.tool()
+async def dbpia_links(
+    query: str = "",
+    title: str = "",
+    author: str = "",
+    journal: str = "",
+    node_id: str = "",
+) -> str:
+    """Compose DBpia addresses for the user to open; sends nothing to DBpia.
+
+    DBpia's terms forbid storing or transmitting its results, so this tool
+    never queries it. Give `query`, or any of `title`, `author`, `journal`
+    (joined into one search), and/or a DBpia `node_id` (NODE plus digits) for
+    the article page. The links come back under `suggestions`; `items` is
+    always empty because no record was retrieved. Open them in a browser signed
+    in to DBpia to see availability and price, and save with Zotero's DBpia
+    translator from there.
+    """
+    fields = {"title": title.strip(), "author": author.strip(), "journal": journal.strip()}
+    terms = query.strip() or " ".join(v for v in fields.values() if v)
+    node = node_id.strip()
+    links: list[dict] = []
+    diags: list[dict] = []
+    if terms:
+        links.append({"label": "DBpia search", "terms": terms, "url": _dbpia_search_url(terms)})
+        if not query.strip() and fields["title"] and (fields["author"] or fields["journal"]):
+            links.append({
+                "label": "DBpia search, title only",
+                "terms": fields["title"],
+                "url": _dbpia_search_url(fields["title"]),
+            })
+    if node:
+        if _DBPIA_NODE.match(node):
+            links.append({
+                "label": "DBpia article page",
+                "node_id": node.upper(),
+                "url": f"{DBPIA_ARTICLE_URL}?nodeId={node.upper()}",
+            })
+        else:
+            diags.append(M.diag(
+                "warning", "DBPIA_NODE_UNRECOGNISED",
+                f"'{node}' is not in the NODE-plus-digits form DBpia uses; no article link was built.",
+                "Copy the nodeId from the address bar of the DBpia article page.",
+            ))
+    if not links and not diags:
+        diags.append(M.diag(
+            "warning", "NO_TERMS",
+            "Nothing to link: give query, title, author, journal or node_id.", None,
+        ))
+    if terms and M.detect_script(terms) == "latin":
+        diags.append(M.diag(
+            "warning", "SCRIPT_LATIN_QUERY",
+            "The DBpia search terms are in Latin script.",
+            "DBpia carries English titles for some articles only. Search in Hangul "
+            "to reach Korean-language scholarship.",
+        ))
+    diags.append(M.diag(
+        "info", "LINK_ONLY",
+        f"{len(links)} link(s) composed. No request was sent to DBpia.",
+        "Availability and price are on DBpia's page, not in this response.",
+    ))
+    params = {k: v for k, v in {**fields, "query": query.strip(), "node_id": node}.items() if v}
+    return M.emit(
+        M.build_envelope(
+            server="korea_scholarship_mcp",
+            operation="dbpia_links",
+            input_terms=terms or node,
+            normalized=terms or node,
+            params=params,
+            matching_mode="link_only",
+            total=0,
+            start=0,
+            items=[],
+            diagnostics=diags,
+            attribution=DBPIA_ATTRIBUTION,
+            coverage_note=DBPIA_COVERAGE_NOTE,
+            suggestions=links or None,
+        )
+    )
+
+
+# ==============================================================================
 # Status
 # ==============================================================================
 
@@ -1489,8 +1601,10 @@ async def korea_sources_status() -> str:
         },
         {
             "source": "DBpia (Nurimedia)",
-            "reason": "Keys are open, but the terms of use forbid copying, storing or transmitting "
-                      "search results — incompatible with harvesting into a reference manager or corpus.",
+            "reason": "Not searched. The terms of use forbid copying, storing or transmitting "
+                      "search results — incompatible with harvesting into a reference manager or corpus. "
+                      "dbpia_links composes DBpia search and article addresses for the user to open "
+                      "in a browser; no DBpia data passes through this server.",
         },
     ]
 
