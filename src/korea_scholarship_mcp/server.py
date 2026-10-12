@@ -298,6 +298,12 @@ async def _kci_rest(api_code: str, params: dict) -> tuple[Optional[object], Opti
     if err:
         return None, err
 
+    # KCI wraps every answer, errors included, in <MetaData><outputData>. A 200
+    # without that frame (a maintenance page, a bare <MetaData/>) used to fall
+    # through with no records and no message and read as a clean empty search.
+    if _ln(root) != "MetaData" or _child(root, "outputData") is None:
+        return None, _not_protocol("a KCI <MetaData><outputData> response", root)
+
     res = _child(root, "result")
     code = _first_in(res, "resultCode") if res is not None else None
     msg = _first_in(res, "resultMsg") if res is not None else _first(root, "resultMsg")
@@ -733,7 +739,30 @@ async def kci_journal_metrics(
 # ==============================================================================
 
 
+_OAI_NS = "http://www.openarchives.org/OAI/2.0/"
+
+
+def _not_protocol(expected: str, root) -> dict:
+    return M.diag(
+        "error", "PARSE_ERROR",
+        f"The source answered with well-formed XML that is not {expected} "
+        f"(root <{_ln(root)}>). The query was not answered; this is not an empty result.",
+        "Usually a maintenance page or a gateway error. Retry later.",
+    )
+
+
+def _is_oai(root, verbs: tuple[str, ...]) -> bool:
+    """An OAI-PMH response: the OAI-PMH root in its namespace, carrying the
+    verb's element or an <error>."""
+    return root.tag == f"{{{_OAI_NS}}}OAI-PMH" and any(
+        _ln(c) in verbs + ("error",) for c in root)
+
+
 def _oai_error(root) -> Optional[dict]:
+    # Checked first: every OAI tool calls this before reading records, and a
+    # 200 that is not OAI-PMH used to be read as a harvest of zero records.
+    if not _is_oai(root, ("ListRecords", "GetRecord")):
+        return _not_protocol("an OAI-PMH ListRecords or GetRecord response", root)
     for el in root.iter():
         if _ln(el) == "error":
             code = el.attrib.get("code", "unknown")
@@ -1387,9 +1416,14 @@ async def korea_sources_status() -> str:
         entry["reachable"] = err is None
         if err is None and text:
             root, perr = _parse(text)
+            if perr or not _is_oai(root, ("Identify",)):
+                entry["accepted"] = False
+                entry["note"] = (perr or _not_protocol("an OAI-PMH Identify response", root))["message"]
             entry["repository"] = _first(root, "repositoryName") if not perr else None
             entry["earliest_datestamp"] = _first(root, "earliestDatestamp") if not perr else None
-        entry["note"] = None if err is None else err["message"]
+        if err is not None:
+            entry["note"] = err["message"]
+        entry.setdefault("note", None)
         checks.append(entry)
 
     not_covered = [
