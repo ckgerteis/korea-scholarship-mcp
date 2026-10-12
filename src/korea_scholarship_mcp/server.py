@@ -785,17 +785,18 @@ def _oai_error(root) -> Optional[dict]:
     # 200 that is not OAI-PMH used to be read as a harvest of zero records.
     if not _is_oai(root, ("ListRecords", "GetRecord")):
         return _not_protocol("an OAI-PMH ListRecords or GetRecord response", root)
-    for el in root.iter():
-        if _ln(el) == "error":
-            code = el.attrib.get("code", "unknown")
-            if code == "noRecordsMatch":
-                return M.diag(
-                    "info",
-                    "OAI_NO_RECORDS",
-                    "No records were ingested in this window.",
-                    "Widen the from/until range. The window filters ingest dates, not publication dates.",
-                )
-            return M.diag("error", "OAI_ERROR", f"{code}: {_norm(el.text)}", None)
+    # Only the root's own OAI-PMH <error> children: a record's metadata may
+    # carry an element named "error" in its own schema.
+    for el in root.findall(f"{{{_OAI_NS}}}error"):
+        code = el.attrib.get("code", "unknown")
+        if code == "noRecordsMatch":
+            return M.diag(
+                "info",
+                "OAI_NO_RECORDS",
+                "No records were ingested in this window.",
+                "Widen the from/until range. The window filters ingest dates, not publication dates.",
+            )
+        return M.diag("error", "OAI_ERROR", f"{code}: {_norm(el.text)}", None)
     return None
 
 
