@@ -101,7 +101,7 @@ Every tool returns the envelope built by `mediation.py` and defined in [`respons
 
 ## Prerequisites
 
-- Python 3.10+ on PATH.
+- Python 3.10 to 3.14 on PATH.
 - Optionally, a **KCI API key** — free, self-registered, required only for the four REST tools.
 
 ## Getting a KCI key
@@ -115,7 +115,7 @@ KCI is also mirrored as four datasets on [data.go.kr](https://www.data.go.kr/) u
 
 Three routes. All three give you the same server; pick by how much you want to see of it.
 
-**Python.** The pip and source routes need Python 3.10 or later; 3.10, 3.12, 3.13 and 3.14 are tested in CI on Windows, macOS and Linux. The Claude Desktop bundle uses whichever of these is already installed, and has uv download one only if none is.
+**Python.** The pip and source routes need Python 3.10 to 3.14; 3.10, 3.11, 3.12, 3.13 and 3.14 are tested in CI on Windows, macOS and Linux. The Claude Desktop bundle uses whichever of these is already installed, and has uv download one only if none is.
 
 ### Getting Python
 
@@ -140,7 +140,7 @@ official installers include.
 
 Download `korea-scholarship-mcp-0.6.2.mcpb` from the [latest release](https://github.com/ckgerteis/korea-scholarship-mcp/releases/latest) and open it; Claude Desktop installs it. One bundle serves Windows, macOS (Apple Silicon and Intel) and Linux. Claude Desktop asks for KCI API key and a receipts folder at install time; the key is stored in the OS keychain.
 
-The bundle carries the server's source and a lock file, nothing compiled, and needs no Python of its own. Claude Desktop builds the bundle's environment when you install it, with [uv](https://docs.astral.sh/uv/), a copy already on your PATH if there is one and otherwise one the app downloads for itself: uv takes a Python 3.10 or later already on the machine, downloads one only if there is none, and installs the locked libraries, roughly 40 MB, behind the install progress bar. Every launch then reuses that environment and takes under a second. Bundles 0.6.0 and 0.6.1 kept `pyproject.toml` one folder down, which made Claude Desktop skip that install step and download everything during the first connection attempt instead; on a slow or filtered network that attempt never completed and the app reported it could not connect to the extension server. Bundles before 0.6.0 vendored libraries compiled for CPython 3.12 only and failed on every other interpreter. See [Troubleshooting](#troubleshooting).
+The bundle carries the server's source and a lock file, nothing compiled, and needs no Python of its own. Claude Desktop builds the bundle's environment when you install it, with [uv](https://docs.astral.sh/uv/), a copy already on your PATH if there is one and otherwise one the app downloads for itself: uv takes a Python 3.10 to 3.14 already on the machine, downloads one only if there is none, and installs the locked libraries, roughly 40 MB, behind the install progress bar. Every launch then reuses that environment and takes under a second. Bundles 0.6.0 and 0.6.1 kept `pyproject.toml` one folder down, which made Claude Desktop skip that install step and download everything during the first connection attempt instead; on a slow or filtered network that attempt never completed and the app reported it could not connect to the extension server. Bundles before 0.6.0 vendored libraries compiled for CPython 3.12 only and failed on every other interpreter. See [Troubleshooting](#troubleshooting).
 
 ### From GitHub, pinned to a release
 
