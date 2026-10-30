@@ -1,5 +1,5 @@
 """
-Korea Scholarship MCP Server (v0.6.2)
+Korea Scholarship MCP Server (v0.7.0)
 =====================================
 An MCP server for Korean-language scholarship: the Korea Citation Index (KCI,
 한국학술지인용색인, National Research Foundation of Korea) and Open Access Korea

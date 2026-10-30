@@ -139,16 +139,16 @@ official installers include.
 
 ### One click: the Claude Desktop bundle
 
-Download `korea-scholarship-mcp-0.6.2.mcpb` from the [latest release](https://github.com/ckgerteis/korea-scholarship-mcp/releases/latest) and open it; Claude Desktop installs it. One bundle serves Windows, macOS (Apple Silicon and Intel) and Linux. Claude Desktop asks for KCI API key and a receipts folder at install time; the key is stored in the OS keychain.
+Download `korea-scholarship-mcp-0.7.0.mcpb` from the [latest release](https://github.com/ckgerteis/korea-scholarship-mcp/releases/latest) and open it; Claude Desktop installs it. One bundle serves Windows, macOS (Apple Silicon and Intel) and Linux. Claude Desktop asks for KCI API key and a receipts folder at install time; the key is stored in the OS keychain.
 
 The bundle carries the server's source and a lock file, nothing compiled, and needs no Python of its own. Claude Desktop builds the bundle's environment when you install it, with [uv](https://docs.astral.sh/uv/), a copy already on your PATH if there is one and otherwise one the app downloads for itself: uv takes a Python 3.10 to 3.14 already on the machine, downloads one only if there is none, and installs the locked libraries, roughly 40 MB, behind the install progress bar. Every launch then reuses that environment and takes under a second. Bundles 0.6.0 and 0.6.1 kept `pyproject.toml` one folder down, which made Claude Desktop skip that install step and download everything during the first connection attempt instead; on a slow or filtered network that attempt never completed and the app reported it could not connect to the extension server. Bundles before 0.6.0 vendored libraries compiled for CPython 3.12 only and failed on every other interpreter. See [Troubleshooting](#troubleshooting).
 
 ### From GitHub, pinned to a release
 
 ```bash
-pip install "git+https://github.com/ckgerteis/korea-scholarship-mcp@v0.6.2"
+pip install "git+https://github.com/ckgerteis/korea-scholarship-mcp@v0.7.0"
 # or, without an environment of your own:
-uvx --from "git+https://github.com/ckgerteis/korea-scholarship-mcp@v0.6.2" korea-scholarship-mcp
+uvx --from "git+https://github.com/ckgerteis/korea-scholarship-mcp@v0.7.0" korea-scholarship-mcp
 ```
 
 installs the `korea-scholarship-mcp` console script and `korea-scholarship-mcp-ledger`. The tag is the thing to cite; `@main` gets whatever is current. Then register it in Claude Desktop (below), or let `install.py` do that.
@@ -156,7 +156,7 @@ installs the `korea-scholarship-mcp` console script and `korea-scholarship-mcp-l
 ### The whole family
 
 ```bash
-pip install "git+https://github.com/ckgerteis/bibliograph-mcp@v1.0.4" && bibliograph install
+pip install "git+https://github.com/ckgerteis/bibliograph-mcp@v1.0.6" && bibliograph install
 ```
 
 installs all six servers and registers them together — one receipts folder, credentials asked for once. See [bibliograph-mcp](https://github.com/ckgerteis/bibliograph-mcp). From a checkout of this repository, `python install.py` does the same for this server alone, `python install.py --all` for the six, on Windows, macOS and Linux; `install.ps1` remains for Windows.
